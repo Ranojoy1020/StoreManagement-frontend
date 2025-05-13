@@ -3,9 +3,7 @@ import { GlobalContext } from "../context/GlobalContext";
 import { useContext } from "react";
 
 export const Sidebar = () => {
-  const { darkMode, toggleDarkMode, logout } = useContext<{
-    darkMode: boolean;
-  }>(GlobalContext); // Access the dark mode state from context
+  const { darkMode, toggleDarkMode, logout } = useContext(GlobalContext); // Access the dark mode state from context
 
   const handleLogout = () => {
     logout(); // Call the logout function from context
@@ -46,6 +44,11 @@ export const Sidebar = () => {
         </Link>
         <Link to="/udhaar" className="block px-4 py-2 hover:bg-gray-700">
           Udhaar
+        </Link>
+        <div className={`h-0.25 my-2 ${darkMode ? "bg-gray-50": "bg-gray-900"}`}></div>
+
+        <Link to="/update-password" className="block px-4 py-2 hover:bg-gray-700">
+          Update Password
         </Link>
 
         <button

@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { split } from "postcss/lib/list";
 
 ChartJS.register(
   CategoryScale,
@@ -29,9 +30,7 @@ export const Dashboard = () => {
     pendingUdhaar: 0,
   });
 
-  const [salesData, setSalesData] = useState<{ day: string; sales: number }[]>(
-    []
-  );
+  const [salesData, setSalesData] = useState([]);
   const [transactions, setTransactions] = useState([]);
 
   const {
@@ -42,18 +41,23 @@ export const Dashboard = () => {
     fetchInventory,
     sales,
     fetchSales,
-    udhaar,
-    fetchUdhaar,
+    salesDesc,
+    fetchSalesDesc,
+    expenses,
+    fetchExpenses,
+    unpaidUdhaar,
+    fetchUnpaidUdhaar,
+    BACKEND_API_URL,
   } = useContext(GlobalContext); // Access fetchInventory function from context
 
   const [topProducts, setTopProducts] = useState([]);
   const [period, setPeriod] = useState("all");
 
-  const fetchTopProducts = async (selectedPeriod: string) => {
+  const fetchTopProducts = async (selectedPeriod) => {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:8080/api/sales/top-products/${selectedPeriod}`,
+        BACKEND_API_URL + `/sales/top-products/${selectedPeriod}`,
         {
           credentials: "include",
         }
@@ -78,23 +82,43 @@ export const Dashboard = () => {
     // Fetch data from API
     fetchInventory();
     fetchSales();
-    fetchUdhaar();
+    fetchSalesDesc();
+    fetchExpenses();
+    fetchUnpaidUdhaar();
 
     setLoading(false); // Set loading to false after data is fetched
   }, []);
 
   useEffect(() => {
     // Calculate total sales, inventory, and udhaar
-    const totalSales = sales.reduce(
-      (acc: number, sale) => acc + sale.totalAmount,
-      0
-    );
+    const totalSales = sales.reduce((acc, sale) => acc + sale.totalAmount, 0);
     const totalInventory = inventory.length;
-    const pendingUdhaar = udhaar.reduce(
-      (acc: number, udhaar) => acc + udhaar.amountDue,
+    const pendingUdhaar = unpaidUdhaar.reduce(
+      (acc, udhaar) => acc + udhaar.amountDue,
       0
     );
 
+    // Set transactions data
+    const mergedList = [...salesDesc, ...expenses];
+
+    const normalizedList = mergedList.map((item) => {
+      return {
+        ...item,
+        date: item.saleDate || item.expenseDate || null,
+        type: item.saleDate ? "sale" : "expense",
+      };
+    });
+
+    // Step 2: Sort descending by date (latest first)
+    const sortedByDate = normalizedList.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    // Step 3: Take the latest 5
+    const latestFive = sortedByDate.slice(0, 5);
+    setTransactions(latestFive);
+
+    console.log("Transactions Data:", transactions);
+
+    // Set stats
     setStats({
       totalSales,
       totalInventory,
@@ -102,23 +126,28 @@ export const Dashboard = () => {
     });
 
     // Prepare sales data for chart
-    const salesData = (sales as { date: Date; totalAmount: number }[]).map(
-      (sale) => ({
-        day: new Intl.DateTimeFormat("en-US").format(sale.date),
-        sales: sale.totalAmount,
-      })
-    );
+    const salesData = sales.map((sale) => ({
+      day: split(sale.saleDate, "T")[0],
+      sales: sale.totalAmount,
+    }));
 
     setSalesData(salesData);
-  }, [inventory, sales, udhaar]);
+  }, [inventory, sales, unpaidUdhaar]);
 
-  // Chart Data
+  // Step 1: Group and sum sales by day
+  const salesByDay = salesData.reduce((acc, curr) => {
+    const day = curr.day || "No Data";
+    acc[day] = (acc[day] || 0) + curr.sales;
+    return acc;
+  }, {});
+
+  // Step 2: Prepare chart data from aggregated results
   const chartData = {
-    labels: salesData.map((data) => (data == null ? "No Data" : data!.day)),
+    labels: Object.keys(salesByDay),
     datasets: [
       {
         label: "Sales (₹)",
-        data: salesData.map((data) => data.sales),
+        data: Object.values(salesByDay),
         borderColor: "rgb(75, 192, 192)",
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         fill: true,
@@ -182,13 +211,11 @@ export const Dashboard = () => {
               <tr className={darkMode ? "bg-gray-700" : "bg-gray-100"}>
                 <th className="border border-gray-300 p-2">#</th>
                 <th className="border border-gray-300 p-2">Product</th>
-                <th className="border border-gray-300 p-1">
-                  Quantity Sold
-                </th>
+                <th className="border border-gray-300 p-1">Quantity Sold</th>
               </tr>
             </thead>
             <tbody>
-              {topProducts.map((prod:{productName: string, quantitySold : number}, index) => (
+              {topProducts.map((prod, index) => (
                 <tr
                   key={prod.productName}
                   className={darkMode ? "bg-gray-700" : "bg-white"}
@@ -207,8 +234,8 @@ export const Dashboard = () => {
             </tbody>
           </table>
         </div>
-      {/* Sales Chart */}
-      
+        {/* Sales Chart */}
+
         <div
           className={`p-6 mt-6 rounded-lg shadow-md ${
             darkMode ? "bg-gray-800" : "bg-white"
@@ -233,28 +260,28 @@ export const Dashboard = () => {
                 } text-left`}
               >
                 <th className="border border-gray-300 px-4 py-2">#</th>
-                <th className="border border-gray-300 px-4 py-2">Customer</th>
+                <th className="border border-gray-300 px-4 py-2">Type</th>
                 <th className="border border-gray-300 px-4 py-2">Amount</th>
                 <th className="border border-gray-300 px-4 py-2">Date</th>
               </tr>
             </thead>
             <tbody>
-              {transactions.map((txn: any) => (
+              {transactions.map((txn, index) => (
                 <tr
-                  key={txn.id}
+                  key={index}
                   className={`text-center ${
                     darkMode ? "bg-gray-700" : "bg-white"
                   }`}
                 >
-                  <td className="border border-gray-300 px-4 py-2">{txn.id}</td>
+                  <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {txn.customer}
+                    {(txn.type).charAt(0).toUpperCase() + txn.type.slice(1)}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {txn.amount}
+                    {txn.amount || txn.totalAmount}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {txn.date}
+                    {split(txn.date, "T")[0]}
                   </td>
                 </tr>
               ))}
@@ -262,8 +289,6 @@ export const Dashboard = () => {
           </table>
         </div>
       </div>
-
-      
     </div>
   );
 };

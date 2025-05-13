@@ -7,7 +7,7 @@ export const GlobalContext = createContext({});
 // Provider Component
 import { ReactNode } from "react";
 
-export const GlobalProvider = ({ children }: { children: ReactNode }) => {
+export const GlobalProvider = ({ children }) => {
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
   const [sales, setSales] = useState([]);
@@ -16,10 +16,14 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
   const [expenses, setExpenses] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [udhaar, setsUdhaar] = useState([]);
+  const [unpaidUdhaar, setUnpaidUdhaar] = useState([]);
   const [loading, setLoading] = useState(false); // Example for loading state
   const [error, setError] = useState(null); // Example for error handling
   
-  const BACKEND_API_URL = "https://store-management-a8t7.onrender.com/api"; // Example for backend API URL
+  const BACKEND_API_URL = import.meta.env.VITE_API_BASE_URL; // Example for backend API URL
+
+  // console.log(BACKEND_API_URL);
+  
 
   // Authentication state
   const [user, setUser] = useState(() => {
@@ -28,7 +32,7 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
     return storedUser ? JSON.parse(storedUser) : null;
   }); // Example for authentication
 
-  const login = (userData: {username : string}) => {
+  const login = (userData) => {
     setUser(userData.username);
     localStorage.setItem("user", JSON.stringify(userData.username)); // Save user to localStorage
   } // Example for login function
@@ -145,6 +149,17 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
       .catch((err) => console.error("Error fetching udhaar:", err));
   };
   
+  const fetchUnpaidUdhaar = async () => {
+    await fetch(BACKEND_API_URL +"/udhaar/allUnpaidUdhaar",{
+      credentials: "include" // Include credentials for CORS
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setUnpaidUdhaar(data);
+      })
+      .catch((err) => console.error("Error fetching udhaar:", err));
+  };
+  
   
   return (
     <GlobalContext.Provider 
@@ -156,6 +171,7 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
               expenses, setExpenses, fetchExpenses,
               suppliers, setSuppliers, fetchSuppliers,
               udhaar, setsUdhaar, fetchUdhaar,
+              unpaidUdhaar, setUnpaidUdhaar, fetchUnpaidUdhaar,
               user, login, logout, 
               loading, setLoading, 
               error, setError, 

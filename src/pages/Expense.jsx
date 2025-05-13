@@ -6,14 +6,6 @@ import { Loading } from "../components/Loading";
 
 export const Expense = () => {
 
-  interface Supplier {
-    supplierId: number;
-    name: string;
-    contact: string;
-    email: string;
-    address: string;
-  }
-
   const expenseCategories = [
     {
       label: "Cost of Goods Sold",
@@ -123,6 +115,7 @@ export const Expense = () => {
     fetchSuppliers,
     loading,
     setLoading,
+    BACKEND_API_URL,
   } = useContext(GlobalContext);
 
   const [newExpense, setNewExpense] = useState({
@@ -144,14 +137,14 @@ export const Expense = () => {
     setLoading(true);
     fetchExpenses()
       .then(() => setLoading(false))
-      .catch((error: string) => {
+      .catch((error) => {
         console.error("Error fetching expenses:", error);
         setLoading(false);
       });
 
     fetchSuppliers()
       .then(() => setLoading(false))
-      .catch((error: string) => {
+      .catch((error) => {
         console.error("Error fetching suppliers:", error);
         setLoading(false);
       });
@@ -164,7 +157,7 @@ export const Expense = () => {
     }
 
     axios
-      .post("http://localhost:8080/api/expenses/addExpense", newExpense, {withCredentials: true})
+      .post(BACKEND_API_URL + "/expenses/addExpense", newExpense, {withCredentials: true})
       .then((res) => {
         setExpenses((prev) => [...prev, res.data]);
         setNewExpense({ amount: "", category: "", description: "", date: "" });
@@ -177,9 +170,9 @@ export const Expense = () => {
       });
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id) => {
     axios
-      .delete(`http://localhost:8080/api/expenses/deleteExpense/${id}`, {withCredentials: true})
+      .delete(BACKEND_API_URL + `/expenses/deleteExpense/${id}`, {withCredentials: true})
       .then(() => {
         setExpenses((prev) => prev.filter((e) => e.expenseId !== id));
         toast.success("Expense deleted.");
@@ -196,11 +189,9 @@ export const Expense = () => {
     if (filters.toDate) queryParams.append("to", filters.toDate);
     if (filters.category) queryParams.append("category", filters.category);
 
-    console.log("Query Params:", queryParams.toString());
-
     axios
       .get(
-        `http://localhost:8080/api/reports/expenses?${queryParams.toString()}`,
+        BACKEND_API_URL + `/reports/expenses?${queryParams.toString()}`,
         {
           responseType: "blob",
           withCredentials: true,
@@ -360,7 +351,7 @@ export const Expense = () => {
       }
     >
       <option value="">Select Supplier</option>
-      {suppliers.map((supplier: Supplier) => (
+      {suppliers.map((supplier) => (
         <option key={supplier.supplierId} value={supplier.supplierId}>
           {supplier.name}
         </option>
@@ -430,7 +421,7 @@ export const Expense = () => {
             </tr>
           </thead>
           <tbody>
-            {expenses.map((e: any) => (
+            {expenses.map((e) => (
               <tr
                 key={e.expenseId}
                 className={`${darkMode ? "bg-gray-700" : "bg-white"}`}

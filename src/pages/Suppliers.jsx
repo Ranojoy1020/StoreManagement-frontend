@@ -9,17 +9,10 @@ export const Suppliers = () => {
     fetchSuppliers,
     loading,
     setLoading,
+    BACKEND_API_URL,
    } = useContext(GlobalContext);
   const [isOpen, setIsOpen] = useState(false);
   
-  interface Supplier {
-    supplierId: number;
-    name: string;
-    contact: string;
-    email: string;
-    address: string;
-  }
-
   const [formData, setFormData] = useState({
     name: "",
     contact: "",
@@ -39,7 +32,7 @@ export const Suppliers = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post("http://localhost:8080/api/supplier/addSupplier", formData, { headers: { "Content-Type": "application/json"}, withCredentials: true })
+    axios.post(BACKEND_API_URL + "/supplier/addSupplier", formData, { headers: { "Content-Type": "application/json"}, withCredentials: true })
       .then(() => {
         fetchSuppliers(); // Refresh list
         setFormData({ name: "", contact: "", email:"", address: "" });

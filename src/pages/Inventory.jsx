@@ -4,7 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export const Inventory = () => {
-  const { darkMode, inventory, setInventory, fetchInventory, products, setProducts, fetchProducts } =
+  const { darkMode, inventory, setInventory, fetchInventory, products, fetchProducts, BACKEND_API_URL } =
     useContext(GlobalContext);
 
   const [newEntry, setNewEntry] = useState({
@@ -32,7 +32,7 @@ export const Inventory = () => {
     if (!newEntry.productId || !newEntry.quantity) return;
 
     fetch(
-      `http://localhost:8080/api/inventory/${newEntry.productId}?stockQuantity=${newEntry.quantity}&minStockThreshold=${newEntry.minStockThreshold}`,
+      BACKEND_API_URL + `/inventory/${newEntry.productId}?stockQuantity=${newEntry.quantity}&minStockThreshold=${newEntry.minStockThreshold}`,
       {
         method: "POST",
         headers: {
@@ -55,7 +55,7 @@ export const Inventory = () => {
 
   const handleUpdate = () => {
     fetch(
-      `http://localhost:8080/api/inventory/${editEntry.product.productId}?stockQuantity=${editEntry.stockQuantity}&minStockThreshold=${editEntry.minStockThreshold}`,
+      BACKEND_API_URL + `/inventory/${editEntry.product.productId}?stockQuantity=${editEntry.stockQuantity}&minStockThreshold=${editEntry.minStockThreshold}`,
       {
         method: "POST",
         credentials: "include",
@@ -78,7 +78,7 @@ export const Inventory = () => {
   };
 
   const handleDelete = (id) => {
-    fetch(`http://localhost:8080/api/inventory/${id}`, {
+    fetch(BACKEND_API_URL + `/inventory/${id}`, {
       method: "DELETE",
       credentials: "include",
     })
@@ -108,7 +108,7 @@ export const Inventory = () => {
 
       {/* Add Inventory Form */}
       <div className="mb-6 p-4 bg-blue-100 dark:bg-blue-800 rounded">
-        <h2 className="text-xl font-semibold mb-2">Add New Inventory</h2>
+        <h2 className="text-xl font-semibold mb-2 dark:text-white">Add New Inventory</h2>
         <div className="flex flex-wrap gap-2">
           <select
             value={newEntry.productId}

@@ -18,9 +18,10 @@ import { Customer } from './pages/Customer'
 import { Udhaar } from './pages/Udhaar'
 import { Expense } from './pages/Expense'
 import { Suppliers } from './pages/Suppliers'
+import { UpdatePassword } from './pages/UpdatePassword';
 
 function App() {
-  const { user } = useContext<{user : boolean}>(GlobalContext);
+  const { user } = useContext(GlobalContext);
 
   return (
     <Router>
@@ -37,6 +38,7 @@ function App() {
               <Route path="/udhaar" element={<Udhaar />} />
               <Route path="/expense" element={<Expense />} />
               <Route path="/supplier" element={<Suppliers />} />
+              <Route path="/update-password" element={<UpdatePassword />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </div>

@@ -12,6 +12,7 @@ export const Sales = () => {
     customers, fetchCustomers,
     products, fetchProducts,
     salesDesc, setSalesDesc, fetchSalesDesc,
+    BACKEND_API_URL,
   } = useContext(GlobalContext);
 
   const [newSale, setNewSale] = useState({
@@ -42,16 +43,16 @@ export const Sales = () => {
   }, []);
 
   const handleAddSaleItem = () => {
-    setNewSale((prev: any) => ({
+    setNewSale((prev) => ({
       ...prev,
       items: [...prev.items, { productId: "", quantity: 1, unitPrice: 0 }],
     }));
   };
 
   const handleSaleItemChange = (
-    index: number,
-    field: string,
-    value: string
+    index,
+    field,
+    value
   ) => {
     const updatedItems = [...newSale.items];
     if (field === "productId") {
@@ -69,7 +70,7 @@ export const Sales = () => {
     setNewSale((prev) => ({ ...prev, items: updatedItems }));
   };
 
-  const handleRemoveSaleItem = (index: number) => {
+  const handleRemoveSaleItem = (index) => {
     setNewSale((prevSale) => ({
       ...prevSale,
       items: prevSale.items.filter((_, i) => i !== index),
@@ -120,7 +121,7 @@ export const Sales = () => {
 
     setLoading(true);
 
-    fetch("http://localhost:8080/api/sales/recordSale", {
+    fetch(BACKEND_API_URL + "/sales/recordSale", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -171,7 +172,7 @@ export const Sales = () => {
     if (filters.paymentMode)
       queryParams.append("paymentMode", filters.paymentMode);
     
-    fetch(`http://localhost:8080/api/reports/sales?${queryParams.toString()}`, {
+    fetch(BACKEND_API_URL + `/reports/sales?${queryParams.toString()}`, {
       method: "GET",
       headers: {
         Accept: "application/pdf",
@@ -224,14 +225,14 @@ export const Sales = () => {
         <h2 className="text-xl font-semibold mb-2">Add New Sale</h2>
 
         <select
-          className="p-2 m-1 border rounded bg-white text-black border-0"
+          className="p-2 m-1 rounded bg-white text-black border-0"
           value={newSale.customerId}
           onChange={(e) =>
             setNewSale({ ...newSale, customerId: e.target.value })
           }
         >
           <option value="">Select Customer</option>
-          {customers.map((c: any) => (
+          {customers.map((c) => (
             <option key={c.customerId} value={c.customerId}>
               {"ID: " + c.customerId + " || " + c.fname}
             </option>
@@ -239,7 +240,7 @@ export const Sales = () => {
         </select>
 
         <select
-          className="p-2 m-1 border rounded bg-white text-black border-0"
+          className="p-2 m-1 rounded bg-white text-black border-0"
           value={newSale.paymentMode}
           onChange={(e) =>
             setNewSale({ ...newSale, paymentMode: e.target.value })
@@ -254,8 +255,8 @@ export const Sales = () => {
         <h3 className="mt-3 font-medium">Sale Items</h3>
         {newSale.items.map(
           (
-            item: { id: number; quantity: number; unitPrice: number },
-            index: number
+            item,
+            index
           ) => (
             <div key={index} className="flex flex-wrap gap-2 my-2 items-center">
               <select
@@ -465,7 +466,7 @@ export const Sales = () => {
                 <td className="border px-4 py-2">₹{sale.totalAmount}</td>
                 <td className="border px-4 py-2">{sale.paymentMode}</td>
                 <td className="border px-4 py-2">
-                  {sale.salesItems.map((item, i: number) => (
+                  {sale.salesItems.map((item, i) => (
                     <div key={i}>
                       {item.productName} (x{item.quantity}) - ₹
                       {item.unitPrice * item.quantity}

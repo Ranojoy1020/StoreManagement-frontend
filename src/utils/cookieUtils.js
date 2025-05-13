@@ -1,4 +1,4 @@
-export const getCookie = (name: string): string | null => {
+export const getCookie = (name) => {
     const cookieArr = document.cookie.split(";");
     for (const cookie of cookieArr) {
       const trimmed = cookie.trim();

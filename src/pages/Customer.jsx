@@ -11,13 +11,8 @@ export const Customer = () => {
     fetchCustomers,
     loading,
     setLoading,
-  } = useContext<{
-    darkMode: boolean;
-    customers: [{ customerId: number; fname: string; lname: string; phone: number }];
-    loading: boolean;
-    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-    fetchCustomers: () => Promise<void>;
-  }>(GlobalContext);
+    BACKEND_API_URL,
+  } = useContext(GlobalContext);
 
   const [newCustomer, setNewCustomer] = useState({
     fname: "",
@@ -31,14 +26,14 @@ export const Customer = () => {
     setLoading(true);
     fetchCustomers()
       .then(() => setLoading(false))
-      .catch((error: string) => {
+      .catch((error) => {
         console.error("Error fetching customers:", error);
         setLoading(false);
         toast.error("Failed to fetch customers.");
       });
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e) => {
     setNewCustomer({
       ...newCustomer,
       [e.target.name]: e.target.value,
@@ -68,17 +63,17 @@ export const Customer = () => {
     return true;
   };
 
-  const handleAddCustomer = async (e: React.FormEvent) => {
+  const handleAddCustomer = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     setSubmitting(true);
     try {
-      await axios.post("http://localhost:8080/api/customers/addCustomer", newCustomer,{withCredentials: true});
+      await axios.post(BACKEND_API_URL + "/customers/addCustomer", newCustomer,{withCredentials: true});
       await fetchCustomers();
       setNewCustomer({ fname: "", lname: "", phone: "", email: "" });
       toast.success("Customer added successfully!");
-    } catch (err: string | any) {
+    } catch (err) {
       console.error("Add customer failed:", err);
       toast.error("Failed to add customer." + err.message);
     } finally {
@@ -171,12 +166,7 @@ export const Customer = () => {
           </thead>
           <tbody>
             {customers.map(
-              (customer: {
-                customerId: number;
-                fname: string;
-                lname: string;
-                phone: number;
-              }) => (
+              (customer) => (
                 <tr
                   key={customer.customerId}
                   className="bg-gray-700 text-white hover:bg-gray-100 hover:text-black"
