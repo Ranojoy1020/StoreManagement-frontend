@@ -28,10 +28,16 @@ export const UpdatePassword = () => {
         { withCredentials: true }
       );
 
-      toast.success("Password updated successfully.");
+      toast.success("Password updated successfully");
       setoldPassword("");
       setNewPassword("");
       setConfirmPassword("");
+
+      setTimeout(() => {
+          toast.success("Redirecting to Dashboard...");
+          window.location.href = "/"; // Redirect to login page after 1 second
+        }, 2000);
+
     } catch (error) {
       console.error("Update error:", error);
       toast.error(

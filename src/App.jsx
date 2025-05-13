@@ -19,6 +19,7 @@ import { Udhaar } from './pages/Udhaar'
 import { Expense } from './pages/Expense'
 import { Suppliers } from './pages/Suppliers'
 import { UpdatePassword } from './pages/UpdatePassword';
+import { CreateUser } from './pages/CreateUser';
 
 function App() {
   const { user } = useContext(GlobalContext);
@@ -39,6 +40,7 @@ function App() {
               <Route path="/expense" element={<Expense />} />
               <Route path="/supplier" element={<Suppliers />} />
               <Route path="/update-password" element={<UpdatePassword />} />
+              <Route path="/create-user" element={<CreateUser />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </div>

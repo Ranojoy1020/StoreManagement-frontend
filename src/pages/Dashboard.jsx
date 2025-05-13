@@ -116,8 +116,6 @@ export const Dashboard = () => {
     const latestFive = sortedByDate.slice(0, 5);
     setTransactions(latestFive);
 
-    console.log("Transactions Data:", transactions);
-
     // Set stats
     setStats({
       totalSales,

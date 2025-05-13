@@ -50,6 +50,9 @@ export const Sidebar = () => {
         <Link to="/update-password" className="block px-4 py-2 hover:bg-gray-700">
           Update Password
         </Link>
+        <Link to="/create-user" className="block px-4 py-2 hover:bg-gray-700">
+          Create New User
+        </Link>
 
         <button
           className={`bg-gray-700 px-4 py-2 m-4 float ${
